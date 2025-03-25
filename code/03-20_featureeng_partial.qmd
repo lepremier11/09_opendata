@@ -161,9 +161,15 @@ fe_month %>%
 Now, what if we wanted to have month as part of the column name instead?  
 
 ```{r fe_month_sum_wide}
-fe_month_sum_wide <- 
+fe_month_sum_wide <- fe_month_sum %>%
+  pivot_longer(cols = mean_dayl.s:sum_prcp.mm) %>%
+  mutate(varname = paste0(name, "_", month_abb))%>%
+  dplyr::select(-name, -month_abb) %>%
+  pivot_wider(names_from = varname,
+              values_from = value
+              ) %>%
   # Rounding to one decimal point
-
+mutate(across(3:75,~round(.,1) ))
 fe_month_sum_wide  
 ```
 Notice how we are back at **698** rows.  
@@ -178,7 +184,13 @@ Let's make a ridge plot to visualize the distribution of one variable over month
 ```{r}
 #install.packages("ggridges")
 library(ggridges)
-
+ggplot(data = fe_month_sum,
+       aes(x = mean_tmax.c,
+           y = month_abb,
+           fill = stat(x)
+           )
+       ) +
+  geom_density_ridges_gradient()
 
 ```
 
